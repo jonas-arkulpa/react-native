@@ -30,6 +30,8 @@ import com.facebook.react.uimanager.events.NativeGestureUtil;
  */
 public class ReactViewPager extends ViewPager {
 
+  private boolean mHasLayout;
+
   private class Adapter extends PagerAdapter {
 
     private final List<View> mViews = new ArrayList<>();
@@ -163,7 +165,7 @@ public class ReactViewPager extends ViewPager {
     super(reactContext);
     mEventDispatcher = reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher();
     mIsCurrentItemFromJs = false;
-    setOnPageChangeListener(new PageChangeListener());
+    addOnPageChangeListener(new PageChangeListener());
     setAdapter(new Adapter());
   }
 
@@ -192,6 +194,19 @@ public class ReactViewPager extends ViewPager {
     }
 
     return super.onTouchEvent(ev);
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    super.onLayout(changed, l, t, r, b);
+    mHasLayout = true;
+  }
+
+  @Override
+  protected void onAttachedToWindow() {
+    if (!mHasLayout) {
+      super.onAttachedToWindow();
+    }
   }
 
   public void setCurrentItemFromJs(int item, boolean animated) {
